@@ -67,7 +67,7 @@ def simulate_shower(particle):
     return [particle, simulate_shower(rad), simulate_shower(fin)]
 
 def print_single_particle(particle):
-    print("{ \"E\": " + str(particle[0]) + ", \"x\": " + str(particle[1]) + ", \"y\": " + str(particle[2]) + ", \"z\": " + str(particle[3]) + "}")
+    print("{ \"E\": " + str(particle[0]) + ", \"x\": " + str(particle[1]) + ", \"y\": " + str(particle[2]) + ", \"z\": " + str(particle[3]) + " }")
 def print_particles(particles, tabs):
     print "\t" * tabs + "{"
     print "\t" * (tabs + 1) + "\"initial\" : ",
