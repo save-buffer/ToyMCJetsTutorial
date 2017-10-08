@@ -3,7 +3,7 @@ import math
 
 initial = [1, 1, 1, 1]
 
-e_thresh = 0.9
+e_thresh = 0.01
 
 def pdf(x):
     return 1 / (1 + x)
@@ -75,6 +75,7 @@ def print_particles(particles, tabs):
     if len(particles) == 1:
         print("\t" * tabs + "}")
         return
+    print "\t" * (tabs + 1) + ","
     print "\t" * (tabs + 1) + "\"rad\" : ",
     print_particles(particles[1], tabs + 1)
     print "\t" * (tabs + 1) + ","
