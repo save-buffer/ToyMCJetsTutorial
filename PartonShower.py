@@ -1,6 +1,6 @@
 import random
 import math
-
+import Tkinter as tk
 initial = [1, 1, 1, 1]
 
 e_thresh = 0.01
@@ -86,4 +86,35 @@ def print_particles(particles, tabs):
 
 final_particles = simulate_shower(initial)
     
-print_particles(final_particles, 0)
+#print_particles(final_particles, 0)
+
+root = tk.Tk()
+canvas = tk.Canvas(root, width=1000, height=1000)
+canvas.pack()
+scale = 20
+
+camera_position = [0, 0, 1]
+
+def convert_to_2d(x, y, z):
+    depth = math.sqrt(camera_position[0] ** 2 + camera_position[1] ** 2 + camera_position[2] ** 2)
+    return x / depth, y / depth, 1 / depth
+    
+    
+def draw(particles, x, y, z):
+    final_x = x + scale * particles[0][1]
+    final_y = y + scale * particles[0][2]
+    final_z = z + scale * particles[0][3]
+
+    _x, _y, thick1 = convert_to_2d(x, y, z)
+    _final_x, _final_y, thick2 = convert_to_2d(final_x, final_y, final_z)
+    thick = (thick1 + thick2) / 2.0
+    thick = max(thick, 1)
+    canvas.create_line(_x, 1000 - _y, _final_x, 1000 - _final_y, width = thick)
+    if len(particles) == 1:
+        return
+    draw(particles[1], final_x, final_y, final_z)
+    draw(particles[2], final_x, final_y, final_z)
+    
+draw(final_particles, 500, 500, 0)
+root.mainloop()
+
