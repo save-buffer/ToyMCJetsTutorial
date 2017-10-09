@@ -4,6 +4,9 @@ import Tkinter as tk
 initial = [1, 1, 1, 1]
 
 e_thresh = 0.01
+mass = 0.0001
+scale = 6000
+
 
 def pdf(x):
     return 1 / (1 + x)
@@ -58,7 +61,9 @@ def simulate_shower(particle):
     th = theta(rand)
     ph = phi(rand)
     z = pdf(rand)
-    new_length = length * math.sqrt(z)
+    e_k = z * particle[0] - mass
+    new_length = math.sqrt(2 * mass * e_k)
+#    new_length = math.sqrt(z) * length
     rad = [z * particle[0], particle[1], particle[2], particle[3]]
     rad = scale_to_length(rad, new_length)
     rad = rotate_towards_j(th, rad)
@@ -88,7 +93,8 @@ def generate_event(energy):
     e = math.e ** -alpha * random.random()
     ph = random.random() * 2 * math.pi
     th = random.random() * math.pi
-    a = rotate_towards_j(th, [e, 1, 0, 0])
+    p = math.sqrt(2 * mass * (e - mass));
+    a = rotate_towards_j(th, [e, p, 0, 0])
     a = rotate_towards_k(ph, a)
     b = [energy - e, -a[1], -a[2], -a[3]]
     return a, b
@@ -105,7 +111,6 @@ b_shower = simulate_shower(b)
 root = tk.Tk()
 canvas = tk.Canvas(root, width=1000, height=1000)
 canvas.pack()
-scale = 50
 
 camera_position = [0, 0, 1]
 
