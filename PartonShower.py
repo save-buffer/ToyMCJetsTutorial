@@ -1,18 +1,27 @@
 import random
 import math
 import Tkinter as tk
-initial = [1, 1, 1, 1]
 
-e_thresh = 0.01
-mass = 0.0001
-scale = 6000
+##LHC-SCALE ENERGY LEVELS (very slow, expect 15ish minutes on a mid-spec 2016 MacBook Pro)
+##About 13 TeV collision, 3 MeV threshold, negligible mass
+#e_thresh = 0.001
+#e_collision = 3529.411
+#mass = 0.000001
+
+##Smaller scale collision. Smaller shower, much faster simulation (< 1 sec)
+##About 3 GeV collision, 3 MeV threshold, negligible mass
+e_thresh = 0.001
+e_collision = 1
+mass = 0.00001
+
+scale = 10000
 
 
 def pdf(x):
     return 1 / (1 + x)
 
 def theta(x):
-    return math.pi / (2 * x + 2)
+    return (math.pi / 2) * x
 
 def phi(x):
     return math.pi * x
@@ -96,15 +105,12 @@ def generate_event(energy):
     p = math.sqrt(2 * mass * (e - mass));
     a = rotate_towards_j(th, [e, p, 0, 0])
     a = rotate_towards_k(ph, a)
-    b = [energy - e, -a[1], -a[2], -a[3]]
+    b = [energy - e, p - a[1], -a[2], -a[3]]
     return a, b
-
-
-#final_particles = simulate_shower(initial)
     
 #print_particles(final_particles, 0)
 
-a, b = generate_event(1)
+a, b = generate_event(e_collision)
 a_shower = simulate_shower(a)
 b_shower = simulate_shower(b)
 
@@ -117,12 +123,12 @@ camera_position = [0, 0, 1]
 def convert_to_2d(x, y, z):
     depth = math.sqrt(camera_position[0] ** 2 + camera_position[1] ** 2 + camera_position[2] ** 2)
     return x / depth, y / depth, 1 / depth    
-    
+
 def draw(particles, x, y, z, color="black"):
     final_x = x + scale * particles[0][1]
     final_y = y + scale * particles[0][2]
     final_z = z + scale * particles[0][3]
-
+    
     _x, _y, thick1 = convert_to_2d(x, y, z)
     _final_x, _final_y, thick2 = convert_to_2d(final_x, final_y, final_z)
     thick = (thick1 + thick2) / 2.0
