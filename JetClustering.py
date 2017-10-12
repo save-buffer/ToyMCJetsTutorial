@@ -1,6 +1,6 @@
 import random
 import math
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 
 ##LHC-SCALE ENERGY LEVELS (very slow, expect 15ish minutes on a mid-spec 2016 MacBook Pro)
@@ -158,17 +158,18 @@ def cluster_jets(pseudo_jets, R, n):
         min_j = 0
         for j in range(len(d_ij[i])):
             if d_ij[i][j] < d_ij[i][min_j]:
-                if not removed[i] and not removed[j + i]:
+                if not removed[j + i + 1]:
                     min_j = j
         v1 = pseudo_jets[i]
         v2 = pseudo_jets[min_j]
+
         if d_ij[i][min_j] < d_b[i]:
             new_v = [v1[0] + v2[0], v1[1] + v2[1], v1[2] + v2[2], v1[3] + v2[3]]
             new_pseudo_jets.append(new_v)
-            removed[i] = True
-            removed[min_j] = True
+            removed[min_j + i + 1] = True
         else:
             jets.append(pseudo_jets[i])
+        removed[i] = True
     if not removed[len(pseudo_jets) - 1]:
         jets.append(pseudo_jets[len(pseudo_jets) - 1])
     return jets + cluster_jets(new_pseudo_jets, R, n)
@@ -178,7 +179,7 @@ def cluster_jets(pseudo_jets, R, n):
 # b_shower = []
 # simulate_shower(a, a_shower)
 # simulate_shower(b, b_shower)
-# a_jets = cluster_jets(a_shower, 0.01, 1)
+# a_jets = cluster_jets(a_shower, 0.5, 1)
 # print len(a_jets)
 
 rs = [0.01, 0.05, 0.1, 0.5, 1.0]
@@ -212,8 +213,8 @@ for i in range(len(rs)):
             b_jets = cluster_jets(k, rs[i], ns[j])
             num_jets[i][j] += len(b_jets)
 
-plt.hist(num_jets)
-plt.show()
+#plt.hist(num_jets)
+#plt.show()
     
 
 
