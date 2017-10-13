@@ -142,7 +142,10 @@ def calculate_d_ijs(pseudo_jets, R, n):
             d_ij[i].append((p_t ** (2 * n)) * (delta_ij / R))
     return d_ij
 
-def cluster_jets(pseudo_jets, R, n):
+def calculate_p_t(pseudo_jet):
+    return math.sqrt(pseudo_jet[2] ** 2 + pseudo_jet[3] ** 2)
+
+def _cluster_jets(pseudo_jets, R, n):
     if len(pseudo_jets) == 0:
         return []
     removed = []
@@ -164,7 +167,28 @@ def cluster_jets(pseudo_jets, R, n):
         v2 = pseudo_jets[min_j]
 
         if d_ij[i][min_j] < d_b[i]:
-            new_v = [v1[0] + v2[0], v1[1] + v2[1], v1[2] + v2[2], v1[3] + v2[3]]
+            biggest = 0
+            second_biggest = 0
+            biggest_energy = 0
+            second_biggest_energy = 0
+            if v1[4] > v2[4]:
+                biggest_energy = v1[6]
+                biggest = v1[4]
+                second_biggest = max(v2[4], v1[5])
+                if v2[4] > v1[5]:
+                    second_biggest_energy = v2[6]
+                else:
+                    second_biggest_energy = v1[7]
+            else:
+                biggest_energy = v2[6]
+                biggest = v2[4]
+                second_biggest = max(v1[4], v2[5])
+                if v1[4] > v2[5]:
+                    second_biggest_energy = v1[6]
+                else:
+                    second_biggest_energy = v2[7]
+                
+            new_v = [v1[0] + v2[0], v1[1] + v2[1], v1[2] + v2[2], v1[3] + v2[3], biggest, second_biggest, biggest_energy, second_biggest_energy]
             new_pseudo_jets.append(new_v)
             removed[min_j + i + 1] = True
         else:
@@ -172,46 +196,71 @@ def cluster_jets(pseudo_jets, R, n):
         removed[i] = True
     if not removed[len(pseudo_jets) - 1]:
         jets.append(pseudo_jets[len(pseudo_jets) - 1])
-    return jets + cluster_jets(new_pseudo_jets, R, n)
+    return jets + _cluster_jets(new_pseudo_jets, R, n)
 
-# a, b = generate_event(e_collision)
-# a_shower = []
-# b_shower = []
-# simulate_shower(a, a_shower)
-# simulate_shower(b, b_shower)
-# a_jets = cluster_jets(a_shower, 0.5, 1)
-# print len(a_jets)
+def cluster_jets(pseudo_jets, R, n):
+    for i in pseudo_jets:
+        i.append(calculate_p_t(i))
+        i.append(0)
+        i.append(0)
+        i.append(0)
+    result = _cluster_jets(pseudo_jets, R, n)
+    max_energy_jet = [-1]
+    for i in result:
+        if i[0] > max_energy_jet[0]:
+            max_energy_jet = i
+    print_single_particle(max_energy_jet)
+    print max_energy_jet[6]
+    pseudo_mass = max_energy_jet[6] * max_energy_jet[7]
+    return result, pseudo_mass
+a, b = generate_event(e_collision)
+a_shower = []
+b_shower = []
+simulate_shower(a, a_shower)
+simulate_shower(b, b_shower)
+a_jets, m1 = cluster_jets(a_shower, 0.5, 1)
+b_jets, m2 = cluster_jets(a_shower, 0.5, 1)
+s = 0
+for i in a_shower:
+    s += i[0]
+for i in b_shower:
+    s += i[0]
+print len(a_jets)
+print len(b_jets)
+print m1
+print m2
+print s
 
-rs = [0.01, 0.05, 0.1, 0.5, 1.0]
-ns = [-1, 0, 1]
+# rs = [0.01, 0.05, 0.1, 0.5, 1.0]
+# ns = [-1, 0, 1]
 
-a_showers = []
-b_showers = []
-for i in range(10):
-    a, b = generate_event(e_collision)
-    a_shower = []
-    b_shower = []
-    simulate_shower(a, a_shower)
-    simulate_shower(b, b_shower)
-    a_showers.append(a_shower)
-    b_showers.append(b_shower)
+# a_showers = []
+# b_showers = []
+# for i in range(10):
+#     a, b = generate_event(e_collision)
+#     a_shower = []
+#     b_shower = []
+#     simulate_shower(a, a_shower)
+#     simulate_shower(b, b_shower)
+#     a_showers.append(a_shower)
+#     b_showers.append(b_shower)
 
-num_jets = [[0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, 0]]
-for i in range(len(rs)):
-    print "I: " + str(i)
-    for j in range(len(ns)):
-        print "J: " + str(j)
-        for k in a_showers:
-            print "clustering jets"
-            a_jets = cluster_jets(k, rs[i], ns[j])
-            num_jets[i][j] += len(a_jets)
-        for k in b_showers:
-            b_jets = cluster_jets(k, rs[i], ns[j])
-            num_jets[i][j] += len(b_jets)
+# num_jets = [[0, 0, 0],
+#             [0, 0, 0],
+#             [0, 0, 0],
+#             [0, 0, 0],
+#             [0, 0, 0]]
+# for i in range(len(rs)):
+#     print "I: " + str(i)
+#     for j in range(len(ns)):
+#         print "J: " + str(j)
+#         for k in a_showers:
+#             print "clustering jets"
+#             a_jets = cluster_jets(k, rs[i], ns[j])
+#             num_jets[i][j] += len(a_jets)
+#         for k in b_showers:
+#             b_jets = cluster_jets(k, rs[i], ns[j])
+#             num_jets[i][j] += len(b_jets)
 
 #plt.hist(num_jets)
 #plt.show()
