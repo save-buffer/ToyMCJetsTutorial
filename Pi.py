@@ -1,5 +1,7 @@
 import random
 
+print "Approximates the value of Pi using the Monte-Carlo method."
+
 def falls_in_circle(x, y):
     return (x ** 2 + y ** 2) < 0.25
 
@@ -12,4 +14,4 @@ for i in range(total):
         in_circle += 1
 
 pi = 4.0 * in_circle / total
-print(pi)
+print("Pi: " + str(pi))

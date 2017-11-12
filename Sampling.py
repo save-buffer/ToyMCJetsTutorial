@@ -1,6 +1,9 @@
 import random
 import math
 
+
+print "Prints 1000 numbers using the Accept-Reject method, and using the inverse Accept-Reject method"
+
 random.seed()
 
 def pdf(x):
